@@ -35,11 +35,20 @@ export default function CheckInvoice() {
   }
 
   function handleChange(e) {
-    setNumberTTN(e.target.value.replace(/[^0-9]/g, ""));
+    const number = e.target.value;
+    setNumberTTN(number.replace(/[^0-9]/g, ""));
     setError({ ...error, status: false, text: "" });
-    if (e.target.value.length > 14) {
-      setNumberTTN(numberTTN.substring(0, 14));
+    if (number.length > 14) {
       setError({ ...error, status: true, text: "Too many numbers" });
+      setStatusTTN({
+        status: "",
+        warehouseSender: "",
+        warehouseRecipient: "",
+      });
+      setTimeout(() => {
+        setNumberTTN(numberTTN.substring(0, 14));
+        setError({ ...error, status: false, text: "" });
+      }, 500);
     }
   }
 
@@ -49,23 +58,41 @@ export default function CheckInvoice() {
       if (currentItems.length > 10) {
         currentItems.length--;
       }
-      setItems(currentItems);
-      localStorage.setItem("items", JSON.stringify(currentItems));
-
-      getStatusTTN(numberTTN).then((data) =>
-        setStatusTTN({
-          status: data.data.data[0].Status,
-          warehouseSender: data.data.data[0].WarehouseSender,
-          warehouseRecipient: data.data.data[0].WarehouseRecipient,
-        })
-      );
+      getStatusTTN(numberTTN).then((data) => {
+        if (data.data.success) {
+          setItems(currentItems);
+          localStorage.setItem("items", JSON.stringify(currentItems));
+          setStatusTTN({
+            status: data.data.data[0].Status,
+            warehouseSender: data.data.data[0].WarehouseSender,
+            warehouseRecipient: data.data.data[0].WarehouseRecipient,
+          });
+        } else {
+          setError({ ...error, status: true, text: "Wrong number" });
+          setStatusTTN({
+            status: "",
+            warehouseSender: "",
+            warehouseRecipient: "",
+          });
+        }
+      });
     } else {
       setError({ ...error, status: true, text: "Too few numbers" });
+      setStatusTTN({
+        status: "",
+        warehouseSender: "",
+        warehouseRecipient: "",
+      });
     }
   }
 
   function historyClick(e) {
     setNumberTTN(e.target.firstChild.data);
+  }
+
+  function onClearHistoryClick() {
+    setItems([]);
+    localStorage.setItem("items", JSON.stringify([]));
   }
 
   return (
@@ -92,15 +119,12 @@ export default function CheckInvoice() {
         </Button>
       </Box>
       <Stack spacing={2} direction="row" justifyContent="center" sx={{ mt: 2 }}>
-        {/* <TextField
-          sx={{ width: "50%" }}
-          label="answer"
-          multiline
-          rows={10}
-          variant="outlined"
-          value={statusTTN}
-        /> */}
-        <StatusInvoice status={statusTTN} />
+        <Stack spacing={4} sx={{ width: "40%" }}>
+          <StatusInvoice status={statusTTN} />
+          <Button variant="outlined" onClick={onClearHistoryClick}>
+            Clear history
+          </Button>
+        </Stack>
         <List
           sx={{ width: "13%", maxHeight: 250, overflow: "auto" }}
           component="nav"
