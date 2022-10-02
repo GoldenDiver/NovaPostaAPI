@@ -6,10 +6,10 @@ import MenuBar from "./components/MenuBar";
 import Invoices from "./components/Invoices";
 import Offices from "./components/Offices";
 // import useSetLocations from "./components/setRedux";
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { getRegiones } from "./services/fetching";
-import { setOffices } from "./futures/offices/officesSlice";
+// import { useEffect } from "react";
+// import { useDispatch } from "react-redux";
+// import { getRegiones } from "./services/fetching";
+// import { setOffices } from "./futures/offices/officesSlice";
 
 function App() {
   const [mode, setMode] = useState(lightTheme);
@@ -18,10 +18,10 @@ function App() {
     mode === false ? setMode(lightTheme) : setMode(darkTheme);
   };
 
-  const dispatch = useDispatch();
-  useEffect(() => {
-    getRegiones().then((data) => dispatch(setOffices(data.data)));
-  }, [dispatch]);
+  // const dispatch = useDispatch();
+  // useEffect(() => {
+  //   getRegiones().then((data) => dispatch(setOffices(data.data)));
+  // }, [dispatch]);
 
   return (
       <ThemeProvider theme={mode}>

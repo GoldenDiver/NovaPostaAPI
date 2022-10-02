@@ -1,18 +1,17 @@
 import { Autocomplete, CssBaseline, TextField } from "@mui/material";
 import { useState } from "react";
-import { getCityes, getStreets } from "../services/fetching";
+import { getCityes } from "../services/fetching";
 
 import { Button } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
+import OfficesRender from "./OfficesRender";
+
 export default function SearchForm() {
-  const [city, setCity] = useState('');
-  const selectCity = {};
+  const [city, setCity] = useState("");
+  const [selectCity, setSelectCity] = useState({});
   const [searchCity, setSearchCity] = useState([]);
-
-  const [street, setStreet] = useState('')
-  const selectStreet = {}
-
+  const [btn, setBtn] = useState(false);
 
   function onChange(e) {
     setCity(e.target.value);
@@ -20,36 +19,44 @@ export default function SearchForm() {
   }
 
   function onSearchClick() {
-    
+    if (!btn) {
+      setBtn(!btn);
+    } else {
+      setBtn(!btn);
+    }
   }
+
+  function onClickAutocomplete(event, value) {
+    setCity(value);
+    const ref = searchCity.filter((item) => item.Present === value)[0].Ref;
+    const warehouses = searchCity.filter((item) => item.Present === value)[0]
+      .Warehouses;
+    const main = searchCity.filter((item) => item.Present === value)[0]
+      .MainDescription;
+    setSelectCity({ name: value, warehouses, main, ref });
+  }
+
   return (
     <>
+      <CssBaseline />
       <Autocomplete
+        freeSolo
+        sx={{ width: 500, ml: "auto", mr: "auto" }}
         disableClearable
         options={searchCity.map((item) => item.Present)}
-        onChange={(event, value) => {
-          setCity(value);
-          selectCity.name = value;
-          selectCity.ref = searchCity.filter(
-            (item) => item.Present === value
-          )[0].Ref;
-          console.log(selectCity);
-        }}
+        onChange={onClickAutocomplete}
         renderInput={(params) => (
-          <>
-            <CssBaseline />
-            <TextField
-              {...params}
-              label="Select city"
-              variant="outlined"
-              onChange={onChange}
-              value={city}
-              InputProps={{
-                ...params.InputProps,
-                type: "search",
-              }}
-            />
-          </>
+          <TextField
+            {...params}
+            label="Select city"
+            variant="outlined"
+            onChange={onChange}
+            value={city}
+            InputProps={{
+              ...params.InputProps,
+              type: "search",
+            }}
+          />
         )}
       />
       <Button
@@ -60,6 +67,7 @@ export default function SearchForm() {
       >
         Search offices
       </Button>
+      {btn ? <OfficesRender city={selectCity}  /> : ''}
     </>
   );
 }
